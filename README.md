@@ -6,7 +6,8 @@
 ## Connect to the drone over SSH with WiFi
 
 First, connect your computer to the drone hotspot **PiDrone** with the WPA key **raspberrydrone**.
-The connect over SSH with the following command:
+
+Connect over SSH with the following command:
 
     $ ssh pi@192.168.1.1
 

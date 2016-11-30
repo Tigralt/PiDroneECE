@@ -1,0 +1,72 @@
+#!/usr/bin/env python
+import navio.mpu9250
+import navio.ms5611
+import navio.util
+import socket
+import struct
+import time
+import sys
+
+# Config variable
+ID = 0
+BROADCAST = "192.168.1.255"
+PORT = 5005
+SENDRATE = 0.1
+
+# Init IMU sensor
+imu = navio.mpu9250.MPU9250()
+if not imu.testConnection():
+    sys.exit("MPU9250 sensor not reachable...")
+imu.initialize()
+
+# Init Barometer sensor
+baro = navio.ms5611.MS5611()
+baro.initialize()
+
+# Init socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+# ID
+def getID():
+    global ID
+    ID += 1
+    return struct.pack("I", ID)
+
+
+# Accelerometer, Gyroscope & Magnetometer
+def getAccGyrMag():
+    global imu
+    acc, gyr, mag = imu.getMotion9()
+    agm = acc + gyr + mag
+
+    return struct.pack("9f", *agm)
+
+# Barometer & Temperature
+def getBarTemp():
+    global baro
+
+    baro.refreshPressure()
+    time.sleep(0.01)
+    baro.readPressure()
+
+    baro.refreshTemperature()
+    time.sleep(0.01)
+    baro.readTemperature()
+
+    baro.calculatePressureAndTemperature()
+    barometer = [baro.TEMP, baro.PRES]
+    return struct.pack("2f", *barometer)
+
+
+time.sleep(1)
+if __name__ == "__main__":
+    while True:
+        start = time.time()
+        data = getID() + \
+               getAccGyrMag() + \
+               getBarTemp()
+
+        sock.sendto(data, (BROADCAST, PORT))
+        time.sleep(SENDRATE - (time.time() - start))

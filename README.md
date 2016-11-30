@@ -1,7 +1,7 @@
 # PiDroneECE
 
-- [#connect-to-the-drone-over-ssh-with-wifi](Connect to the drone over SSH with WiFi)
-- [#get-drone-sensor-information](Get drone sensor information)
+- [Connect to the drone over SSH with WiFi](#connect-to-the-drone-over-ssh-with-wifi)
+- [Get drone sensor information](#get-drone-sensor-information)
 
 ## Connect to the drone over SSH with WiFi
 
